@@ -20,16 +20,16 @@ class Game {
    * If passed, the board will be initialized with the provided
    * initial state.
    */
-  constructor(initialState = null) {
+  constructor(initialState) {
     this.board = initialState || [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 0, 0],
       [0, 0, 0, 0],
     ];
-
     this.score = 0;
     this.status = 'playing';
+
     // eslint-disable-next-line no-console
     console.log(initialState);
   }
@@ -55,12 +55,12 @@ class Game {
       // видаляємо нулі після об'єднання клітинок
 
       while (newRow.length < row.length) {
-        newRow.unshift(0); // додаємо нулі в початок рядка, щоб зберегти довжину
+        newRow.push(0); // додаємо нулі в кінець рядка, щоб зберегти довжину
       }
       rows[i] = newRow; // оновлюємо рядок у масиві rows
     }
 
-    this.board = rows;;
+    this.board = rows;
   }
 
   moveRight() {
@@ -141,7 +141,7 @@ class Game {
       newCol = newCol.filter((cell) => cell !== 0);
 
       while (newCol.length < rows.length) {
-        newCol.push(0);
+        newCol.unshift(0);
       }
 
       for (let i = 0; i < rows.length; i++) {
@@ -150,15 +150,14 @@ class Game {
     }
 
     this.board = rows;
+    this.addRandomCell();
   }
 
   /**
    * @returns {number}
    */
   getScore() {
-    const scoreElement = document.querySelector('.score');
-
-    return parseInt(scoreElement.textContent, 10);
+    return this.score;
   }
 
   /**
@@ -178,22 +177,32 @@ class Game {
    * `win` - the game is won;
    * `lose` - the game is lost
    */
-  getStatus() {}
+  getStatus() {
+    return this.status;
+  }
 
   /**
    * Starts the game.
    */
-  start() {}
+  start() {
+    this.status = 'playing';
+    this.addRandomCell();
+    this.addRandomCell();
+  }
 
   /**
    * Resets the game.
    */
-  restart() {}
+  restart(initialState = null) {
+    this.board = initialState || this.initializeBoard();
+    this.score = 0;
+    this.status = 'playing';
+  }
 
   // Add your own methods here
   addRandomCell() {
-    const cells = [...document.querySelectorAll('.field-cell')];
-    const emptyCells = cells.filter((cell) => cell.textContent === '');
+    const cells = [...this.board];
+    const emptyCells = cells.filter((cell) => cell === 0);
     const randCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
     const randValue = Math.random() < 0.9 ? 2 : 4;
 

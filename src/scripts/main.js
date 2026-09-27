@@ -1,32 +1,30 @@
 'use strict';
 
 // Uncomment the next lines to use your game instance in the browser
-// const Game = require('../modules/Game.class');
-// const game = new Game();
+const Game = require('../modules/Game.class');
+const game = new Game();
 
 // Write your code here
 
-while (game.getStatus() === 'playing') {
-  document.addEventListener('keydown', (event) => {
-    switch (event.key) {
-      case 'ArrowLeft':
-        game.moveLeft();
-        console.log('Left arrow pressed');
-        break;
-      case 'ArrowRight':
-        game.moveRight();
-        console.log('Right arrow pressed');
-        break;
-      case 'ArrowUp':
-        game.moveUp();
-        console.log('Up arrow pressed');
-        break;
-      case 'ArrowDown':
-        game.moveDown();
-        console.log('Down arrow pressed');
-        break;
-      default:
-        break;
-    }
-  });
-}
+document.addEventListener('keydown', (clickEvent) => {
+  if (game.getStatus() !== 'playing') {
+    return;
+  }
+
+  switch (clickEvent.key) {
+    case 'ArrowLeft':
+      game.moveLeft();
+      break;
+    case 'ArrowRight':
+      game.moveRight();
+      break;
+    case 'ArrowUp':
+      game.moveUp();
+      break;
+    case 'ArrowDown':
+      game.moveDown();
+      break;
+    default:
+      return; // не наша клавіша — нічого не робимо
+  }
+});
