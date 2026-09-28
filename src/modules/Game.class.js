@@ -20,7 +20,7 @@ class Game {
    * If passed, the board will be initialized with the provided
    * initial state.
    */
-  constructor(initialState) {
+  constructor(initialState = null) {
     this.board = initialState || [
       [0, 0, 0, 0],
       [0, 0, 0, 0],
@@ -61,6 +61,8 @@ class Game {
     }
 
     this.board = rows;
+    this.addRandomCell();
+    this.render();
   }
 
   moveRight() {
@@ -90,6 +92,8 @@ class Game {
     }
 
     this.board = rows;
+    this.addRandomCell();
+    this.render();
   }
 
   moveUp() {
@@ -120,6 +124,8 @@ class Game {
     }
 
     this.board = rows;
+    this.addRandomCell();
+    this.render();
   }
 
   moveDown() {
@@ -151,6 +157,7 @@ class Game {
 
     this.board = rows;
     this.addRandomCell();
+    this.render();
   }
 
   /**
@@ -188,6 +195,7 @@ class Game {
     this.status = 'playing';
     this.addRandomCell();
     this.addRandomCell();
+    this.render();
   }
 
   /**
@@ -196,18 +204,51 @@ class Game {
   restart(initialState = null) {
     this.board = initialState || this.initializeBoard();
     this.score = 0;
-    this.status = 'playing';
+    this.start();
   }
 
   // Add your own methods here
   addRandomCell() {
-    const cells = [...this.board];
-    const emptyCells = cells.filter((cell) => cell === 0);
-    const randCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-    const randValue = Math.random() < 0.9 ? 2 : 4;
+    const emptyCells = [];
 
-    randCell.classList.add(`field-cell--${randValue}`);
-    randCell.textContent = randValue;
+    for (let mainRow = 0; mainRow < this.board.length; mainRow++) {
+      for (let mainCol = 0; mainCol < this.board[mainRow].length; mainCol++) {
+        if (this.board[mainRow][mainCol] === 0) {
+          emptyCells.push([mainRow, mainCol]);
+        }
+      }
+    }
+
+    if (emptyCells.length === 0) {
+      return;
+    }
+
+    const randomCell = Math.floor(Math.random() * emptyCells.length);
+    const [row, col] = emptyCells[randomCell];
+
+    const randomValue = Math.random() < 0.9 ? 2 : 4;
+
+    this.board[row][col] = randomValue;
+  }
+
+  render() {
+    const field = [...document.querySelectorAll('.field-row')];
+
+    for (let row = 0; row < this.board.length; row++) {
+      for (let col = 0; col < this.board[row].length; col++) {
+        const value = this.board[row][col];
+        // тут змінюєш відповідну DOM-клітинку
+
+        if (value !== 0) {
+          const cell = field[row][col];
+
+          cell.textContent = value;
+          cell.className = '';
+          cell.classList.add('field-cell');
+          cell.classList.add(`field-cell--${value}`);
+        }
+      }
+    }
   }
 }
 
