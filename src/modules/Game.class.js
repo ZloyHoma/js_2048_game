@@ -232,19 +232,21 @@ class Game {
   }
 
   render() {
-    const field = [...document.querySelectorAll('.field-row')];
+    const field = [...document.querySelectorAll('.field-row')].map((row) => {
+      return [...row.querySelectorAll('.field-cell')];
+    });
 
     for (let row = 0; row < this.board.length; row++) {
       for (let col = 0; col < this.board[row].length; col++) {
         const value = this.board[row][col];
         // тут змінюєш відповідну DOM-клітинку
+        const cell = field[row][col];
+
+        cell.textContent = '';
+        cell.className = 'field-cell';
 
         if (value !== 0) {
-          const cell = field[row][col];
-
           cell.textContent = value;
-          cell.className = '';
-          cell.classList.add('field-cell');
           cell.classList.add(`field-cell--${value}`);
         }
       }
