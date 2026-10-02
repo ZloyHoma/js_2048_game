@@ -28,7 +28,7 @@ class Game {
       [0, 0, 0, 0],
     ];
     this.score = 0;
-    this.status = 'playing';
+    this.status = 'idle';
 
     // eslint-disable-next-line no-console
     console.log(initialState);
@@ -36,8 +36,9 @@ class Game {
 
   moveLeft() {
     const rows = this.getState(); // метод getState() вертає поле гри
+    const oldBoard = this.board.map((row) => [...row]);
 
-    for (let i = 0; i < rows.length; i++) {
+    for (let i = 0; i < this.getState().length; i++) {
       const row = rows[i]; // отримуємо поточний рядок
       let newRow = row.filter((cell) => cell !== 0); // видаляємо нулі з рядка
 
@@ -60,47 +61,55 @@ class Game {
       rows[i] = newRow; // оновлюємо рядок у масиві rows
     }
 
-    this.board = rows;
-    this.addRandomCell();
-    this.render();
+    if (this.hasBoardChanged(oldBoard)) {
+      this.board = rows;
+      this.addRandomCell();
+      this.render();
+    }
+
+    this.isWinning();
   }
 
   moveRight() {
-    const rows = this.getState(); // метод getState() вертає поле гри
+    const rows = this.getState();
+    const oldBoard = this.board.map((row) => [...row]);
 
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i]; // отримуємо поточний рядок
-      let newRow = row.filter((cell) => cell !== 0); // видаляємо нулі з рядка
+      const row = rows[i];
+      let newRow = row.filter((cell) => cell !== 0);
 
       for (let j = newRow.length - 1; j >= 0; j--) {
         if (newRow[j] === newRow[j - 1]) {
-          newRow[j] *= 2; // подвоюємо значення клітинки
-          newRow[j - 1] = 0; // встановлюємо попередню клітинку в 0
+          newRow[j] *= 2;
+          newRow[j - 1] = 0;
           this.score += newRow[j];
-          // додаємо до рахунку значення об'єднаної клітинки
-          j--; // пропускаємо клітинку бо вона = 0
+          j--;
         }
       }
 
       newRow = newRow.filter((cell) => cell !== 0);
-      // видаляємо нулі після об'єднання клітинок
 
       while (newRow.length < row.length) {
-        newRow.unshift(0); // додаємо нулі в початок рядка, щоб зберегти довжину
+        newRow.unshift(0);
       }
-      rows[i] = newRow; // оновлюємо рядок у масиві rows
+      rows[i] = newRow;
     }
 
-    this.board = rows;
-    this.addRandomCell();
-    this.render();
+    if (this.hasBoardChanged(oldBoard)) {
+      this.board = rows;
+      this.addRandomCell();
+      this.render();
+    }
+
+    this.isWinning();
   }
 
   moveUp() {
-    const rows = this.getState(); // метод getState() вертає поле гри
+    const rows = this.getState();
+    const oldBoard = this.board.map((row) => [...row]);
 
     for (let j = 0; j < rows[0].length; j++) {
-      const col = rows.map((row) => row[j]); // отримуємо поточний стовпець
+      const col = rows.map((row) => row[j]);
       let newCol = col.filter((cell) => cell !== 0);
 
       for (let i = 0; i < newCol.length - 1; i++) {
@@ -123,16 +132,21 @@ class Game {
       }
     }
 
-    this.board = rows;
-    this.addRandomCell();
-    this.render();
+    if (this.hasBoardChanged(oldBoard)) {
+      this.board = rows;
+      this.addRandomCell();
+      this.render();
+    }
+
+    this.isWinning();
   }
 
   moveDown() {
-    const rows = this.getState(); // метод getState() вертає поле гри
+    const rows = this.getState();
+    const oldBoard = this.board.map((row) => [...row]);
 
     for (let j = 0; j < rows[0].length; j++) {
-      const col = rows.map((row) => row[j]); // отримуємо поточний стовпець
+      const col = rows.map((row) => row[j]);
       let newCol = col.filter((cell) => cell !== 0);
 
       for (let i = newCol.length - 1; i >= 0; i--) {
@@ -155,9 +169,13 @@ class Game {
       }
     }
 
-    this.board = rows;
-    this.addRandomCell();
-    this.render();
+    if (this.hasBoardChanged(oldBoard)) {
+      this.board = rows;
+      this.addRandomCell();
+      this.render();
+    }
+
+    this.isWinning();
   }
 
   /**
@@ -201,8 +219,13 @@ class Game {
   /**
    * Resets the game.
    */
-  restart(initialState = null) {
-    this.board = initialState || this.initializeBoard();
+  restart() {
+    this.board = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ];
     this.score = 0;
     this.start();
   }
@@ -251,6 +274,64 @@ class Game {
         }
       }
     }
+  }
+
+  isWinning() {
+    const allValues = [];
+
+    for (const row of this.board) {
+      for (const value of row) {
+        allValues.push(value);
+      }
+    }
+
+    if (allValues.includes(2048)) {
+      this.status = 'win';
+    }
+
+    if (!this.canMove()) {
+      this.status = 'lose';
+    }
+  }
+
+  hasBoardChanged(oldBoard) {
+    for (let row = 0; row < this.board.length; row++) {
+      for (let col = 0; col < this.board[row].length; col++) {
+        if (oldBoard[row][col] !== this.board[row][col]) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  canMove() {
+    for (let row = 0; row < this.board.length; row++) {
+      for (let col = 0; col < this.board[row].length; col++) {
+        const current = this.board[row][col];
+
+        if (current === 0) {
+          return true;
+        }
+
+        if (
+          col < this.board[row].length - 1 &&
+          current === this.board[row][col + 1]
+        ) {
+          return true;
+        }
+
+        if (
+          row < this.board.length - 1 &&
+          current === this.board[row + 1][col]
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
 
